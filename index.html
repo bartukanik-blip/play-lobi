@@ -593,5 +593,146 @@ footer { padding: 25px; color: #94a3b8; }
 </footer>
 
 
+<!-- PLAY LOBI: SANS CARKI + GOREVLER -->
+<section id="pl-rewards" style="max-width:650px;margin:25px auto;padding:24px;background:#10172b;color:white;border:2px solid #38bdf8;border-radius:20px;text-align:center;font-family:Arial,sans-serif;">
+
+  <h2 style="color:#38bdf8;">🎡 ŞANS ÇARKI</h2>
+  <p>Çarkı çevir, rastgele XP ödülünü kazan!</p>
+
+  <div id="pl-wheel" style="font-size:90px;margin:15px;">🎡</div>
+  <p id="pl-wheel-result">Ödülün seni bekliyor!</p>
+
+  <button id="pl-spin-button" onclick="plSpinWheel()" style="padding:12px 22px;background:#38bdf8;color:#10172b;border:0;border-radius:10px;font-weight:bold;cursor:pointer;">
+    ÇARKI ÇEVİR!
+  </button>
+
+  <hr style="border:0;border-top:1px solid #334155;margin:28px 0;">
+
+  <h2 style="color:#a78bfa;">🎁 GÜNLÜK GÖREVLER</h2>
+  <p id="pl-task-xp">⭐ XP: 0</p>
+
+  <div style="background:#1e293b;padding:15px;border-radius:12px;margin:12px 0;">
+    <p>🎯 Görev 1: En az 3 tur oyna</p>
+    <p id="pl-task1-status">Kontrol ediliyor...</p>
+    <button onclick="plClaimTask(1)" style="padding:10px;background:#a78bfa;border:0;border-radius:8px;cursor:pointer;">+20 XP Al</button>
+  </div>
+
+  <div style="background:#1e293b;padding:15px;border-radius:12px;margin:12px 0;">
+    <p>🔥 Görev 2: En iyi puanını 20 yap</p>
+    <p id="pl-task2-status">Kontrol ediliyor...</p>
+    <button onclick="plClaimTask(2)" style="padding:10px;background:#a78bfa;border:0;border-radius:8px;cursor:pointer;">+30 XP Al</button>
+  </div>
+
+  <p style="font-size:12px;color:#cbd5e1;">Görevler her gün yenilenir. XP bu tarayıcıda saklanır.</p>
+</section>
+
+<script>
+(function() {
+  const $ = id => document.getElementById(id);
+  const today = new Date().toLocaleDateString("en-CA");
+  const oldDay = localStorage.getItem("pl-reward-day");
+
+  if (oldDay !== today) {
+    localStorage.setItem("pl-reward-day", today);
+    localStorage.setItem("pl-wheel-used", "false");
+    localStorage.setItem("pl-tasks-claimed", "[]");
+  }
+
+  function getXP() {
+    return Number(localStorage.getItem("pl-xp") || 0);
+  }
+
+  function addXP(amount) {
+    const xp = getXP() + amount;
+    localStorage.setItem("pl-xp", JSON.stringify(xp));
+    $("pl-task-xp").textContent = "⭐ XP: " + xp;
+
+    const level = document.getElementById("pl-level");
+    if (level) {
+      level.textContent = "⭐ Seviye " + (Math.floor(xp / 100) + 1) + " · " + xp + " XP";
+    }
+  }
+
+  window.plSpinWheel = function() {
+    if (localStorage.getItem("pl-wheel-used") === "true") {
+      $("pl-wheel-result").textContent = "🎡 Bugünkü hakkını kullandın! Yarın tekrar gel.";
+      return;
+    }
+
+    const prizes = [5, 10, 15, 20, 25, 50];
+    const prize = prizes[Math.floor(Math.random() * prizes.length)];
+
+    localStorage.setItem("pl-wheel-used", "true");
+    addXP(prize);
+
+    $("pl-wheel").textContent = "🎉";
+    $("pl-wheel-result").textContent = "Tebrikler! +" + prize + " XP kazandın!";
+    $("pl-spin-button").textContent = "YARIN TEKRAR DENE";
+  };
+
+  window.plClaimTask = function(task) {
+    const claimed = JSON.parse(localStorage.getItem("pl-tasks-claimed") || "[]");
+
+    if (claimed.includes(task)) {
+      alert("Bu görevin ödülünü zaten aldın!");
+      return;
+    }
+
+    let history = [];
+    try {
+      history = JSON.parse(localStorage.getItem("pl-history") || "[]");
+    } catch(e) {}
+
+    const best = Number(localStorage.getItem("pl-best") || 0);
+
+    if (task === 1 && history.length < 3) {
+      alert("Önce oyununda 3 tur tamamla!");
+      return;
+    }
+
+    if (task === 2 && best < 20) {
+      alert("Önce oyununda en az 20 puana ulaş!");
+      return;
+    }
+
+    const reward = task === 1 ? 20 : 30;
+    claimed.push(task);
+    localStorage.setItem("pl-tasks-claimed", JSON.stringify(claimed));
+    addXP(reward);
+    renderTasks();
+
+    alert("🎉 Tebrikler! +" + reward + " XP kazandın!");
+  };
+
+  function renderTasks() {
+    let history = [];
+    try {
+      history = JSON.parse(localStorage.getItem("pl-history") || "[]");
+    } catch(e) {}
+
+    const best = Number(localStorage.getItem("pl-best") || 0);
+    const claimed = JSON.parse(localStorage.getItem("pl-tasks-claimed") || "[]");
+
+    $("pl-task1-status").textContent =
+      claimed.includes(1) ? "✅ Tamamlandı!" :
+      history.length >= 3 ? "✅ Görev hazır!" :
+      "İlerleme: " + history.length + "/3 tur";
+
+    $("pl-task2-status").textContent =
+      claimed.includes(2) ? "✅ Tamamlandı!" :
+      best >= 20 ? "✅ Görev hazır!" :
+      "En iyi puanın: " + best + "/20";
+
+    $("pl-task-xp").textContent = "⭐ XP: " + getXP();
+
+    if (localStorage.getItem("pl-wheel-used") === "true") {
+      $("pl-spin-button").textContent = "YARIN TEKRAR DENE";
+    }
+  }
+
+  renderTasks();
+})();
+</script>
+
 </body>
 </html>
