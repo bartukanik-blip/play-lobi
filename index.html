@@ -177,44 +177,145 @@ footer { padding: 25px; color: #94a3b8; }
 
 <footer>© 2026 Play Lobi | Oyun topluluğu</footer>
 
-<section style="text-align:center;padding:35px 15px;background:#111a30;color:white;">
-  <h2 style="color:#38bdf8;">🎯 Tıklama Yarışı</h2>
-  <p>10 saniyede en yüksek puanı yap!</p>
-  <h3 id="score" style="font-size:42px;">0</h3>
-  <p id="timer">Hazır mısın?</p>
-  <button id="start" onclick="startGame()">Oyuna Başla</button>
-  <button id="clicker" onclick="addPoint()" disabled>TIKLA! ⚡</button>
-  <p id="result"></p>
-  <script>
-    let score = 0, timeLeft = 10, playing = false, gameTimer;
-    function startGame() {
-      clearInterval(gameTimer);
-      score = 0; timeLeft = 10; playing = true;
-      document.getElementById("score").textContent = score;
-      document.getElementById("timer").textContent = "Kalan süre: 10";
-      document.getElementById("result").textContent = "";
-      document.getElementById("clicker").disabled = false;
-      document.getElementById("start").disabled = true;
-      gameTimer = setInterval(function() {
-        timeLeft--;
-        document.getElementById("timer").textContent = "Kalan süre: " + timeLeft;
-        if (timeLeft <= 0) {
-          clearInterval(gameTimer);
-          playing = false;
-          document.getElementById("clicker").disabled = true;
-          document.getElementById("start").disabled = false;
-          document.getElementById("result").textContent = "🏆 Süre bitti! Puanın: " + score;
-          document.getElementById("start").textContent = "Tekrar Oyna";
-        }
-      }, 1000);
-    }
-    function addPoint() {
-      if (!playing) return;
-      score++;
-      document.getElementById("score").textContent = score;
-    }
-  </script>
+
+<section id="click-game">
+  <h2>⚡ TIKLAMA YARIŞI ⚡</h2>
+  <p>10 saniyede olabildiğince hızlı tıkla!</p>
+
+  <div class="game-stats">
+    <div>PUAN <strong id="score">0</strong></div>
+    <div>SÜRE <strong id="timer">10</strong></div>
+    <div>REKOR <strong id="best">0</strong></div>
+  </div>
+
+  <button id="start" onclick="startGame()">🚀 OYUNA BAŞLA</button>
+  <button id="clicker" onclick="addPoint()" disabled>⚡ TIKLA!</button>
+  <p id="result">Rekorunu kırmaya hazır mısın?</p>
 </section>
+
+<style>
+#click-game {
+  text-align: center;
+  padding: 35px 15px;
+  margin: 25px auto;
+  max-width: 650px;
+  color: white;
+  background: linear-gradient(135deg,#10152f,#24104a,#082e49);
+  border: 1px solid #38bdf8;
+  border-radius: 22px;
+  box-shadow: 0 0 22px #38bdf855;
+}
+#click-game h2 {
+  color: #38bdf8;
+  text-shadow: 0 0 15px #38bdf8;
+}
+.game-stats {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 24px 0;
+}
+.game-stats div {
+  background: #ffffff12;
+  border: 1px solid #a78bfa;
+  border-radius: 12px;
+  padding: 12px;
+  min-width: 80px;
+}
+.game-stats strong {
+  display: block;
+  font-size: 28px;
+  color: #38bdf8;
+}
+#click-game button {
+  margin: 8px;
+  padding: 14px 22px;
+  border: 0;
+  border-radius: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+#click-game button:hover:not(:disabled) {
+  transform: scale(1.07);
+  box-shadow: 0 0 18px #38bdf8;
+}
+#start { background: #38bdf8; color: #081126; }
+#clicker { background: #a78bfa; color: #16082c; }
+#clicker:disabled { opacity: .45; cursor: not-allowed; }
+#click-game #result { color: #a5f3fc; font-weight: bold; }
+</style>
+
+<script>
+let score = 0;
+let timeLeft = 10;
+let playing = false;
+let gameTimer;
+let audioCtx;
+
+let best = Number(localStorage.getItem("playLobiBest") || 0);
+document.getElementById("best").textContent = best;
+
+function playSound(frequency = 600) {
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    const oscillator = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    oscillator.frequency.value = frequency;
+    gain.gain.value = 0.06;
+    oscillator.connect(gain);
+    gain.connect(audioCtx.destination);
+    oscillator.start();
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
+    oscillator.stop(audioCtx.currentTime + 0.12);
+  } catch (e) {}
+}
+
+function startGame() {
+  clearInterval(gameTimer);
+  score = 0;
+  timeLeft = 10;
+  playing = true;
+  document.getElementById("score").textContent = score;
+  document.getElementById("timer").textContent = timeLeft;
+  document.getElementById("result").textContent = "Hızını göster! 🔥";
+  document.getElementById("clicker").disabled = false;
+  document.getElementById("start").disabled = true;
+  playSound(500);
+
+  gameTimer = setInterval(function() {
+    timeLeft--;
+    document.getElementById("timer").textContent = timeLeft;
+
+    if (timeLeft <= 0) {
+      clearInterval(gameTimer);
+      playing = false;
+      document.getElementById("clicker").disabled = true;
+      document.getElementById("start").disabled = false;
+      document.getElementById("start").textContent = "🔄 TEKRAR OYNA";
+      document.getElementById("result").textContent =
+        "🏁 Süre bitti! Puanın: " + score;
+
+      if (score > best) {
+        best = score;
+        localStorage.setItem("playLobiBest", best);
+        document.getElementById("best").textContent = best;
+        document.getElementById("result").textContent += " 🏆 YENİ REKOR!";
+      }
+      playSound(850);
+    }
+  }, 1000);
+}
+
+function addPoint() {
+  if (!playing) return;
+  score++;
+  document.getElementById("score").textContent = score;
+  playSound(400 + Math.min(score * 10, 1000));
+}
+</script>
 
 
 </body>
