@@ -411,6 +411,65 @@ footer { padding: 25px; color: #94a3b8; }
 </script>
 
 
+<section id="pl-profile" style="max-width:650px;margin:25px auto;padding:24px;background:#111a30;color:white;border:1px solid #38bdf8;border-radius:18px;text-align:center;font-family:Arial,sans-serif;">
+  <h2 style="color:#38bdf8;">👤 OYUNCU PROFİLİ</h2>
+  <p>Oyuncu adını belirle ve kendi rozetlerini kazan!</p>
+  <input id="pl-name" maxlength="18" placeholder="Oyuncu adın..." style="padding:12px;border-radius:8px;border:1px solid #38bdf8;max-width:90%;">
+  <button onclick="plSaveName()" style="padding:12px;border:0;border-radius:8px;background:#38bdf8;cursor:pointer;">Kaydet</button>
+  <h3 id="pl-welcome">🎮 Oyuncu</h3>
+  <p id="pl-level">⭐ Seviye 1</p>
+  <h3>🏅 Rozetlerim</h3>
+  <div id="pl-badges" style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;"></div>
+  <h3>🏆 Kişisel Sıralamam</h3>
+  <p id="pl-rank">Henüz puan kaydı yok.</p>
+  <p style="font-size:12px;color:#cbd5e1;">Profil bilgileri bu tarayıcıda saklanır.</p>
+</section>
+
+<script>
+(function() {
+  const $ = id => document.getElementById(id);
+  let name = localStorage.getItem("pl-player-name") || "";
+  $("pl-name").value = name;
+
+  window.plSaveName = function() {
+    name = $("pl-name").value.trim().slice(0,18);
+    if (!name) name = "Oyuncu";
+    localStorage.setItem("pl-player-name", name);
+    renderProfile();
+  };
+
+  function renderProfile() {
+    $("pl-welcome").textContent = "🎮 " + (name || "Oyuncu");
+    const xp = Number(localStorage.getItem("pl-xp") || 0);
+    const level = Math.floor(xp / 100) + 1;
+    $("pl-level").textContent = "⭐ Seviye " + level + " · " + xp + " XP";
+
+    const best = Number(localStorage.getItem("pl-best") || 0);
+    const history = JSON.parse(localStorage.getItem("pl-history") || "[]");
+    const badges = [];
+    if (history.length >= 1) badges.push("🎯 İlk Oyun");
+    if (best >= 20) badges.push("⚡ Hızlı Parmak");
+    if (best >= 40) badges.push("🔥 40+ Puan");
+    if (xp >= 100) badges.push("⭐ Seviye Atlayan");
+
+    $("pl-badges").innerHTML = "";
+    if (!badges.length) badges.push("🔒 İlk oyununu oyna!");
+    badges.forEach(badge => {
+      const span = document.createElement("span");
+      span.textContent = badge;
+      span.style.cssText = "padding:10px;background:#ffffff12;border:1px solid #a78bfa;border-radius:10px;";
+      $("pl-badges").appendChild(span);
+    });
+
+    $("pl-rank").textContent = history.length
+      ? "Oynadığın turlar: " + history.length + " · En iyi puanın: " + best
+      : "Henüz puan kaydı yok. Bir oyun oyna!";
+  }
+  renderProfile();
+})();
+</script>
+
+
 
 
 
