@@ -178,144 +178,241 @@ footer { padding: 25px; color: #94a3b8; }
 <footer>© 2026 Play Lobi | Oyun topluluğu</footer>
 
 
-<section id="click-game">
-  <h2>⚡ TIKLAMA YARIŞI ⚡</h2>
-  <p>10 saniyede olabildiğince hızlı tıkla!</p>
 
-  <div class="game-stats">
-    <div>PUAN <strong id="score">0</strong></div>
-    <div>SÜRE <strong id="timer">10</strong></div>
-    <div>REKOR <strong id="best">0</strong></div>
+
+
+<section id="pl-game">
+  <h2>⚡ PLAY LOBİ ARENA ⚡</h2>
+  <p>10 saniyede rekorunu kır!</p>
+
+  <div class="pl-stats">
+    <div>PUAN<strong id="pl-score">0</strong></div>
+    <div>SÜRE<strong id="pl-time">10</strong></div>
+    <div>REKOR<strong id="pl-best">0</strong></div>
   </div>
 
-  <button id="start" onclick="startGame()">🚀 OYUNA BAŞLA</button>
-  <button id="clicker" onclick="addPoint()" disabled>⚡ TIKLA!</button>
-  <p id="result">Rekorunu kırmaya hazır mısın?</p>
+  <div class="pl-level">
+    <div class="pl-leveltop">
+      <span id="pl-levelname">⭐ Seviye 1</span>
+      <span id="pl-xplabel">0 / 100 XP</span>
+    </div>
+    <div class="pl-track"><div id="pl-xpbar"></div></div>
+  </div>
+
+  <button id="pl-start" onclick="plStart()">🚀 OYUNA BAŞLA</button>
+  <button id="pl-click" onclick="plPoint()" disabled>⚡ TIKLA!</button>
+  <p id="pl-result">Hazır mısın?</p>
+
+  <div class="pl-board">
+    <h3>🏆 KİŞİSEL REKORLAR</h3>
+    <p>Bu cihazda oynadığın en iyi 5 turun.</p>
+    <ol id="pl-scores"><li>Henüz tur oynanmadı</li></ol>
+  </div>
 </section>
 
 <style>
-#click-game {
-  text-align: center;
-  padding: 35px 15px;
-  margin: 25px auto;
-  max-width: 650px;
-  color: white;
-  background: linear-gradient(135deg,#10152f,#24104a,#082e49);
-  border: 1px solid #38bdf8;
-  border-radius: 22px;
-  box-shadow: 0 0 22px #38bdf855;
+#pl-game {
+  max-width:680px;
+  margin:35px auto;
+  padding:30px 16px;
+  text-align:center;
+  color:#f4f5ff;
+  background:linear-gradient(145deg,#080d20,#201044,#062c42);
+  border:1px solid #38bdf8;
+  border-radius:22px;
+  box-shadow:0 0 22px #38bdf855;
+  font-family:Arial,sans-serif;
+  animation:plGlow 3s ease-in-out infinite alternate;
 }
-#click-game h2 {
-  color: #38bdf8;
-  text-shadow: 0 0 15px #38bdf8;
+#pl-game h2 {
+  color:#67e8f9;
+  text-shadow:0 0 14px #38bdf8;
 }
-.game-stats {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  margin: 24px 0;
+.pl-stats {
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:10px;
+  margin:22px 0;
 }
-.game-stats div {
-  background: #ffffff12;
-  border: 1px solid #a78bfa;
-  border-radius: 12px;
-  padding: 12px;
-  min-width: 80px;
+.pl-stats div {
+  min-width:80px;
+  padding:12px;
+  background:#ffffff0d;
+  border:1px solid #a78bfa;
+  border-radius:12px;
 }
-.game-stats strong {
-  display: block;
-  font-size: 28px;
-  color: #38bdf8;
+.pl-stats strong {
+  display:block;
+  color:#67e8f9;
+  font-size:27px;
+  margin-top:5px;
 }
-#click-game button {
-  margin: 8px;
-  padding: 14px 22px;
-  border: 0;
-  border-radius: 12px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: transform .15s, box-shadow .15s;
+.pl-level {
+  max-width:440px;
+  margin:20px auto;
+  text-align:left;
 }
-#click-game button:hover:not(:disabled) {
-  transform: scale(1.07);
-  box-shadow: 0 0 18px #38bdf8;
+.pl-leveltop {
+  display:flex;
+  justify-content:space-between;
+  gap:8px;
+  font-size:13px;
+  margin-bottom:8px;
 }
-#start { background: #38bdf8; color: #081126; }
-#clicker { background: #a78bfa; color: #16082c; }
-#clicker:disabled { opacity: .45; cursor: not-allowed; }
-#click-game #result { color: #a5f3fc; font-weight: bold; }
+.pl-track {
+  height:12px;
+  background:#ffffff20;
+  border-radius:20px;
+  overflow:hidden;
+}
+#pl-xpbar {
+  width:0%;
+  height:100%;
+  background:linear-gradient(90deg,#38bdf8,#c084fc);
+  transition:width .3s;
+  box-shadow:0 0 12px #38bdf8;
+}
+#pl-game button {
+  margin:7px;
+  padding:14px 20px;
+  border:0;
+  border-radius:12px;
+  font-weight:bold;
+  cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+}
+#pl-game button:hover:not(:disabled) {
+  transform:scale(1.06);
+  box-shadow:0 0 18px #38bdf8;
+}
+#pl-start {background:#38bdf8;color:#081126}
+#pl-click {background:#a78bfa;color:#16082c}
+#pl-click:disabled {opacity:.4;cursor:not-allowed}
+#pl-result {color:#a5f3fc;font-weight:bold;min-height:24px}
+.pl-board {
+  margin:28px auto 0;
+  padding:16px;
+  max-width:440px;
+  background:#ffffff0b;
+  border:1px solid #ffffff20;
+  border-radius:16px;
+  text-align:left;
+}
+.pl-board h3 {text-align:center;color:#c4b5fd}
+.pl-board p {text-align:center;font-size:13px;color:#cbd5e1}
+#pl-scores li {
+  padding:7px 4px;
+  border-bottom:1px solid #ffffff18;
+}
+@keyframes plGlow {
+  from {box-shadow:0 0 12px #38bdf833}
+  to {box-shadow:0 0 27px #a78bfa77}
+}
+@media(max-width:500px) {
+  #pl-game {margin:20px 8px;padding:24px 10px}
+  .pl-stats div {min-width:68px;padding:9px}
+}
 </style>
 
 <script>
-let score = 0;
-let timeLeft = 10;
-let playing = false;
-let gameTimer;
-let audioCtx;
+(function() {
+  const get = id => document.getElementById("pl-" + id);
+  const load = (key, fallback) => {
+    try {
+      const value = localStorage.getItem("pl-" + key);
+      return value === null ? fallback : JSON.parse(value);
+    } catch(e) { return fallback; }
+  };
+  const save = (key, value) => {
+    try { localStorage.setItem("pl-" + key, JSON.stringify(value)); }
+    catch(e) {}
+  };
 
-let best = Number(localStorage.getItem("playLobiBest") || 0);
-document.getElementById("best").textContent = best;
+  let score = 0, time = 10, playing = false, timer;
+  let best = Number(load("best", 0)) || 0;
+  let xp = Number(load("xp", 0)) || 0;
+  let history = load("history", []);
+  if (!Array.isArray(history)) history = [];
 
-function playSound(frequency = 600) {
-  try {
-    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
-    if (audioCtx.state === "suspended") audioCtx.resume();
-    const oscillator = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    oscillator.frequency.value = frequency;
-    gain.gain.value = 0.06;
-    oscillator.connect(gain);
-    gain.connect(audioCtx.destination);
-    oscillator.start();
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
-    oscillator.stop(audioCtx.currentTime + 0.12);
-  } catch (e) {}
-}
-
-function startGame() {
-  clearInterval(gameTimer);
-  score = 0;
-  timeLeft = 10;
-  playing = true;
-  document.getElementById("score").textContent = score;
-  document.getElementById("timer").textContent = timeLeft;
-  document.getElementById("result").textContent = "Hızını göster! 🔥";
-  document.getElementById("clicker").disabled = false;
-  document.getElementById("start").disabled = true;
-  playSound(500);
-
-  gameTimer = setInterval(function() {
-    timeLeft--;
-    document.getElementById("timer").textContent = timeLeft;
-
-    if (timeLeft <= 0) {
-      clearInterval(gameTimer);
-      playing = false;
-      document.getElementById("clicker").disabled = true;
-      document.getElementById("start").disabled = false;
-      document.getElementById("start").textContent = "🔄 TEKRAR OYNA";
-      document.getElementById("result").textContent =
-        "🏁 Süre bitti! Puanın: " + score;
-
-      if (score > best) {
-        best = score;
-        localStorage.setItem("playLobiBest", best);
-        document.getElementById("best").textContent = best;
-        document.getElementById("result").textContent += " 🏆 YENİ REKOR!";
-      }
-      playSound(850);
+  function render() {
+    const level = Math.floor(xp / 100) + 1;
+    const progress = xp % 100;
+    get("best").textContent = best;
+    get("levelname").textContent = "⭐ Seviye " + level;
+    get("xplabel").textContent = progress + " / 100 XP";
+    get("xpbar").style.width = progress + "%";
+    get("scores").innerHTML = "";
+    if (!history.length) {
+      get("scores").innerHTML = "<li>Henüz tur oynanmadı</li>";
+    } else {
+      history.slice(0, 5).forEach((points, i) => {
+        const li = document.createElement("li");
+        li.textContent = (i === 0 ? "🥇 " : i === 1 ? "🥈 " : i === 2 ? "🥉 " : "") +
+          (i + 1) + ". tur — " + points + " puan";
+        get("scores").appendChild(li);
+      });
     }
-  }, 1000);
-}
+  }
 
-function addPoint() {
-  if (!playing) return;
-  score++;
-  document.getElementById("score").textContent = score;
-  playSound(400 + Math.min(score * 10, 1000));
-}
+  window.plStart = function() {
+    clearInterval(timer);
+    score = 0; time = 10; playing = true;
+    get("score").textContent = score;
+    get("time").textContent = time;
+    get("result").textContent = "Hızını göster! 🔥";
+    get("click").disabled = false;
+    get("start").disabled = true;
+
+    timer = setInterval(function() {
+      time--;
+      get("time").textContent = time;
+      if (time <= 0) {
+        clearInterval(timer);
+        playing = false;
+        get("click").disabled = true;
+        get("start").disabled = false;
+        get("start").textContent = "🔄 TEKRAR OYNA";
+
+        history.push(score);
+        history.sort((a,b) => b-a);
+        history = history.slice(0,5);
+        save("history", history);
+
+        const oldLevel = Math.floor(xp / 100) + 1;
+        xp += score;
+        save("xp", xp);
+
+        if (score > best) {
+          best = score;
+          save("best", best);
+          get("result").textContent = "🏆 YENİ REKOR! " + score + " puan!";
+        } else {
+          get("result").textContent = "Tur bitti! " + score + " puan!";
+        }
+
+        const newLevel = Math.floor(xp / 100) + 1;
+        if (newLevel > oldLevel) {
+          get("result").textContent += " 🎉 SEVİYE ATLADIN!";
+        }
+        render();
+      }
+    }, 1000);
+  };
+
+  window.plPoint = function() {
+    if (!playing) return;
+    score++;
+    get("score").textContent = score;
+  };
+
+  render();
+})();
 </script>
+
+
+
+
 
 
 </body>
