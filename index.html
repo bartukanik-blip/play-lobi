@@ -177,5 +177,45 @@ footer { padding: 25px; color: #94a3b8; }
 
 <footer>© 2026 Play Lobi | Oyun topluluğu</footer>
 
+<section style="text-align:center;padding:35px 15px;background:#111a30;color:white;">
+  <h2 style="color:#38bdf8;">🎯 Tıklama Yarışı</h2>
+  <p>10 saniyede en yüksek puanı yap!</p>
+  <h3 id="score" style="font-size:42px;">0</h3>
+  <p id="timer">Hazır mısın?</p>
+  <button id="start" onclick="startGame()">Oyuna Başla</button>
+  <button id="clicker" onclick="addPoint()" disabled>TIKLA! ⚡</button>
+  <p id="result"></p>
+  <script>
+    let score = 0, timeLeft = 10, playing = false, gameTimer;
+    function startGame() {
+      clearInterval(gameTimer);
+      score = 0; timeLeft = 10; playing = true;
+      document.getElementById("score").textContent = score;
+      document.getElementById("timer").textContent = "Kalan süre: 10";
+      document.getElementById("result").textContent = "";
+      document.getElementById("clicker").disabled = false;
+      document.getElementById("start").disabled = true;
+      gameTimer = setInterval(function() {
+        timeLeft--;
+        document.getElementById("timer").textContent = "Kalan süre: " + timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(gameTimer);
+          playing = false;
+          document.getElementById("clicker").disabled = true;
+          document.getElementById("start").disabled = false;
+          document.getElementById("result").textContent = "🏆 Süre bitti! Puanın: " + score;
+          document.getElementById("start").textContent = "Tekrar Oyna";
+        }
+      }, 1000);
+    }
+    function addPoint() {
+      if (!playing) return;
+      score++;
+      document.getElementById("score").textContent = score;
+    }
+  </script>
+</section>
+
+
 </body>
 </html>
