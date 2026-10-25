@@ -472,6 +472,95 @@ footer { padding: 25px; color: #94a3b8; }
 
 
 
+<section id="pl-custom-profile" style="max-width:650px;margin:25px auto;padding:25px;background:#10172b;color:white;border:2px solid #38bdf8;border-radius:20px;text-align:center;font-family:Arial,sans-serif;box-shadow:0 0 20px #38bdf833;">
+
+  <h2 style="color:#38bdf8;">🎮 PROFİLİNİ ÖZELLEŞTİR</h2>
+
+  <div id="pl-avatar-preview" style="font-size:70px;margin:15px;">😎</div>
+
+  <h3 id="pl-custom-name">Oyuncu</h3>
+
+  <p>✏️ Oyuncu adın</p>
+  <input id="pl-custom-input" maxlength="18" placeholder="İsmini yaz..." style="padding:12px;border-radius:8px;border:1px solid #38bdf8;max-width:85%;">
+
+  <button onclick="plSaveCustomProfile()" style="padding:11px;margin:5px;background:#38bdf8;color:#10172b;border:0;border-radius:8px;cursor:pointer;font-weight:bold;">Kaydet</button>
+
+  <p>🧑 Avatarını seç</p>
+  <div style="display:flex;justify-content:center;gap:10px;flex-wrap:wrap;">
+    <button onclick="plChooseAvatar('😎')">😎</button>
+    <button onclick="plChooseAvatar('👑')">👑</button>
+    <button onclick="plChooseAvatar('🐺')">🐺</button>
+    <button onclick="plChooseAvatar('👽')">👽</button>
+    <button onclick="plChooseAvatar('🔥')">🔥</button>
+    <button onclick="plChooseAvatar('🎮')">🎮</button>
+    <button onclick="plChooseAvatar('🐉')">🐉</button>
+    <button onclick="plChooseAvatar('🤖')">🤖</button>
+  </div>
+
+  <p>🎨 Profil rengini seç</p>
+  <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
+    <button onclick="plChooseColor('#38bdf8')" style="background:#38bdf8;padding:14px;border:0;border-radius:50%;"></button>
+    <button onclick="plChooseColor('#a855f7')" style="background:#a855f7;padding:14px;border:0;border-radius:50%;"></button>
+    <button onclick="plChooseColor('#22c55e')" style="background:#22c55e;padding:14px;border:0;border-radius:50%;"></button>
+    <button onclick="plChooseColor('#ef4444')" style="background:#ef4444;padding:14px;border:0;border-radius:50%;"></button>
+    <button onclick="plChooseColor('#f59e0b')" style="background:#f59e0b;padding:14px;border:0;border-radius:50%;"></button>
+    <button onclick="plChooseColor('#ec4899')" style="background:#ec4899;padding:14px;border:0;border-radius:50%;"></button>
+  </div>
+
+  <p style="font-size:12px;color:#cbd5e1;">Profilin bu tarayıcıda kaydedilir.</p>
+</section>
+
+<script>
+(function() {
+  const box = document.getElementById("pl-custom-profile");
+  if (!box || box.dataset.ready) return;
+  box.dataset.ready = "yes";
+
+  const avatarEl = document.getElementById("pl-avatar-preview");
+  const nameEl = document.getElementById("pl-custom-name");
+  const inputEl = document.getElementById("pl-custom-input");
+
+  let avatar = localStorage.getItem("pl-avatar") || "😎";
+  let color = localStorage.getItem("pl-profile-color") || "#38bdf8";
+  let name = localStorage.getItem("pl-player-name") || "Oyuncu";
+
+  function render() {
+    avatarEl.textContent = avatar;
+    nameEl.textContent = name;
+    inputEl.value = name === "Oyuncu" ? "" : name;
+    box.style.borderColor = color;
+    box.style.boxShadow = "0 0 20px " + color + "55";
+    nameEl.style.color = color;
+    box.querySelector("h2").style.color = color;
+    box.querySelectorAll("button").forEach(function(btn) {
+      if (btn.textContent === "Kaydet") {
+        btn.style.background = color;
+      }
+    });
+  }
+
+  window.plChooseAvatar = function(value) {
+    avatar = value;
+    localStorage.setItem("pl-avatar", avatar);
+    render();
+  };
+
+  window.plChooseColor = function(value) {
+    color = value;
+    localStorage.setItem("pl-profile-color", color);
+    render();
+  };
+
+  window.plSaveCustomProfile = function() {
+    name = inputEl.value.trim().slice(0, 18) || "Oyuncu";
+    localStorage.setItem("pl-player-name", name);
+    render();
+  };
+
+  render();
+})();
+</script>
+
 
 
 </body>
