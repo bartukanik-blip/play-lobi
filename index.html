@@ -778,5 +778,123 @@ box-shadow:0 0 16px #38bdf855;
 })();
 </script>
 
+<!-- PLAY LOBI: SEVIYE VE ROZET SISTEMI -->
+<section id="pl-level-system" style="max-width:650px;margin:25px auto;padding:24px;background:#10172b;color:white;border:2px solid #38bdf8;border-radius:20px;text-align:center;font-family:Arial,sans-serif;">
+
+  <h2 style="color:#38bdf8;">⭐ SEVİYE MERKEZİ</h2>
+
+  <div id="pl-level-big" style="font-size:30px;font-weight:bold;color:#38bdf8;">SEVİYE 1</div>
+
+  <p id="pl-level-xp">0 / 100 XP</p>
+
+  <div style="height:18px;background:#263248;border-radius:20px;overflow:hidden;">
+    <div id="pl-level-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#38bdf8,#a78bfa);border-radius:20px;transition:width .5s;"></div>
+  </div>
+
+  <p id="pl-level-next" style="color:#cbd5e1;">Sonraki seviyeye 100 XP kaldı!</p>
+
+  <hr style="border:0;border-top:1px solid #334155;margin:25px 0;">
+
+  <h2 style="color:#fbbf24;">🏆 ÖZEL ROZETLER</h2>
+  <p>Başarılarını aç ve koleksiyonunu büyüt!</p>
+
+  <div id="pl-level-badges" style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;"></div>
+
+  <p style="font-size:12px;color:#94a3b8;">Rozetler oyun kayıtlarına göre açılır.</p>
+</section>
+
+<script>
+(function() {
+  const $ = id => document.getElementById(id);
+
+  function getXP() {
+    try {
+      return Number(JSON.parse(localStorage.getItem("pl-xp") || "0")) || 0;
+    } catch(e) {
+      return Number(localStorage.getItem("pl-xp") || "0") || 0;
+    }
+  }
+
+  function getBest() {
+    try {
+      return Number(JSON.parse(localStorage.getItem("pl-best") || "0")) || 0;
+    } catch(e) {
+      return Number(localStorage.getItem("pl-best") || "0") || 0;
+    }
+  }
+
+  function getHistory() {
+    try {
+      return JSON.parse(localStorage.getItem("pl-history") || "[]");
+    } catch(e) {
+      return [];
+    }
+  }
+
+  function render() {
+    const xp = getXP();
+    const level = Math.floor(xp / 100) + 1;
+    const progress = xp % 100;
+    const best = getBest();
+    const history = getHistory();
+
+    $("pl-level-big").textContent = "⭐ SEVİYE " + level;
+    $("pl-level-xp").textContent = progress + " / 100 XP";
+    $("pl-level-bar").style.width = progress + "%";
+    $("pl-level-next").textContent =
+      "Sonraki seviyeye " + (100 - progress) + " XP kaldı!";
+
+    const badges = [
+      {name:"İlk Adım", icon:"🎮", unlocked:history.length >= 1},
+      {name:"Hızlı Parmak", icon:"⚡", unlocked:best >= 20},
+      {name:"Usta Oyuncu", icon:"🔥", unlocked:best >= 40},
+      {name:"Efsane", icon:"👑", unlocked:best >= 100},
+      {name:"Seviye Avcısı", icon:"⭐", unlocked:level >= 5}
+    ];
+
+    $("pl-level-badges").innerHTML = "";
+
+    badges.forEach(badge => {
+      const card = document.createElement("div");
+      card.style.cssText =
+        "width:105px;padding:13px 5px;border-radius:12px;background:" +
+        (badge.unlocked ? "#24324a" : "#111827") +
+        ";border:1px solid " +
+        (badge.unlocked ? "#fbbf24" : "#334155") +
+        ";opacity:" + (badge.unlocked ? "1" : "0.55") + ";";
+
+      const icon = document.createElement("div");
+      icon.style.fontSize = "30px";
+      icon.textContent = badge.unlocked ? badge.icon : "🔒";
+
+      const label = document.createElement("div");
+      label.style.cssText = "font-size:12px;margin-top:7px;";
+      label.textContent = badge.name;
+
+      const status = document.createElement("div");
+      status.style.cssText = "font-size:10px;margin-top:5px;color:" +
+        (badge.unlocked ? "#4ade80" : "#94a3b8");
+      status.textContent = badge.unlocked ? "AÇILDI" : "KİLİTLİ";
+
+      card.append(icon, label, status);
+      $("pl-level-badges").appendChild(card);
+    });
+  }
+
+  render();
+
+  window.addEventListener("storage", render);
+
+  // XP değiştiğinde görünümü yenile.
+  const originalSetItem = Storage.prototype.setItem;
+  Storage.prototype.setItem = function(key, value) {
+    originalSetItem.call(this, key, value);
+    if (["pl-xp", "pl-best", "pl-history"].includes(key)) {
+      render();
+    }
+  };
+})();
+</script>
+
 </body>
 </html>
